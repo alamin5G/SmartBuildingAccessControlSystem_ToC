@@ -1,4 +1,78 @@
-package PACKAGE_NAME;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
 
-public class ServerRoom {
+public class ServerRoomSimulation {
+    // Define the states and transitions for the Server Room
+    static Map<String, Map<String, String>> states = new HashMap<>();
+
+    // Function to initialize the state transitions
+    static {
+        Map<String, String> s0Transitions = new HashMap<>();
+        s0Transitions.put("C", "S1");
+        s0Transitions.put("other", "S19");  // Default to S19 for invalid inputs
+        states.put("S0", s0Transitions);
+
+        Map<String, String> s1Transitions = new HashMap<>();
+        s1Transitions.put("R", "S5");
+        s1Transitions.put("other", "S19");
+        states.put("S1", s1Transitions);
+
+        Map<String, String> s5Transitions = new HashMap<>();
+        s5Transitions.put("P", "S10");
+        s5Transitions.put("other", "S19");
+        states.put("S5", s5Transitions);
+
+        Map<String, String> s10Transitions = new HashMap<>();
+        s10Transitions.put("A", "S15");
+        s10Transitions.put("other", "S19");
+        states.put("S10", s10Transitions);
+
+        Map<String, String> s15Transitions = new HashMap<>();
+        s15Transitions.put("B", "S18");
+        s15Transitions.put("other", "S19");
+        states.put("S15", s15Transitions);
+
+        Map<String, String> s18Transitions = new HashMap<>();
+        s18Transitions.put("other", "S19");
+        states.put("S18", s18Transitions);
+
+        Map<String, String> s19Transitions = new HashMap<>();
+        s19Transitions.put("other", "S19");  // Trap state, loops on any input
+        states.put("S19", s19Transitions);
+    }
+
+    // Function to process the sequence of inputs and simulate the DFA
+    public static String processSequence(String[] sequence) {
+        String currentState = "S0";  // Start state
+
+        for (String event : sequence) {
+            event = event.toUpperCase(); // Accept both uppercase and lowercase
+            if (states.containsKey(currentState) && states.get(currentState).containsKey(event)) {
+                currentState = states.get(currentState).get(event);
+            } else {
+                currentState = "S19";  // Invalid event, go to rejection state
+                break;
+            }
+        }
+
+        if ("S18".equals(currentState)) {
+            return "Access Granted";
+        } else {
+            return "Access Denied";
+        }
+    }
+
+    public static void main(String[] args) {
+        // Example of a valid sequence
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter the input sequence separated by spaces:");
+        String inputSequence = input.nextLine();
+        String[] sequence = inputSequence.split(" ");
+
+
+        String result = processSequence(sequence);
+        System.out.println("Result of the sequence: " + result);
+
+    }
 }
