@@ -252,22 +252,34 @@ public class SmartBuildingAccessControlSimulation {
     // Function to process the sequence of inputs and simulate the DFA for all zones
     public static String processSequence(String[] sequence) {
         String currentState = "S0";  // Start at S0 (initial authentication)
+        System.out.println("Starting DFA Simulation...");
+        System.out.println("Initial state: " + currentState);
 
-        // Process each event in the sequence
         for (String event : sequence) {
             event = event.toUpperCase(); // Accept both uppercase and lowercase
-            if (states.containsKey(currentState) && states.get(currentState).containsKey(event)) {
-                currentState = states.get(currentState).get(event);
+
+            if (states.containsKey(currentState)) {
+                Map<String, String> currentTransitions = states.get(currentState);
+                if (currentTransitions.containsKey(event)) {
+                    currentState = currentTransitions.get(event);
+                    System.out.println("Input '" + event + "' accepted. Transitioned to state: " + currentState);
+                } else {
+                    currentState = "S19";
+                    System.out.println("Input '" + event + "' INVALID. Transitioned to REJECTION state S19");
+                    break;
+                }
             } else {
-                currentState = "S19";  // Invalid event, go to rejection state
+                currentState = "S19";
+                System.out.println("Current state '" + currentState + "' not found. Transitioned to REJECTION state S19");
                 break;
             }
         }
 
-        // Check if we reached one of the accepting states (S16, S17, S18)
         if (currentState.equals("S16") || currentState.equals("S17") || currentState.equals("S18")) {
+            System.out.println("Final state: " + currentState + " (Access Granted)");
             return "Access Granted";
         } else {
+            System.out.println("Final state: " + currentState + " (Access Denied)");
             return "Access Denied";
         }
     }
